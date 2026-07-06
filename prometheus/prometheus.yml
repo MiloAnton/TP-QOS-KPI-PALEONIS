@@ -1,0 +1,22 @@
+# Configuration Prometheus pour le TP PaLeonis
+# Documentation : https://prometheus.io/docs/prometheus/latest/configuration/configuration/
+
+global:
+  scrape_interval: 5s        # On scrape souvent pour avoir des graphes reactifs en TP
+  evaluation_interval: 5s
+  scrape_timeout: 4s
+
+scrape_configs:
+  # Self-monitoring : Prometheus se scrape lui-meme
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Notre application PaLeonis
+  - job_name: 'paleonis-api'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['app:3000']
+        labels:
+          service: 'paleonis-reservation'
+          env: 'tp'

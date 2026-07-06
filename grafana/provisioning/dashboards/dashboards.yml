@@ -1,0 +1,17 @@
+apiVersion: 1
+
+# Pas de dashboards pre-charges : c'est aux apprenants de les construire pendant le TP.
+# Si tu veux charger un dashboard preconstruit (par exemple pour le formateur),
+# place le fichier .json dans grafana/dashboards/ et decommente ci-dessous.
+
+# providers:
+#   - name: 'PaLeonis dashboards'
+#     orgId: 1
+#     folder: ''
+#     type: file
+#     disableDeletion: false
+#     editable: true
+#     options:
+#       path: /var/lib/grafana/dashboards
+
+providers: []

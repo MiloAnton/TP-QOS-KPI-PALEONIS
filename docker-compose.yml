@@ -1,0 +1,69 @@
+# Stack TP QoS/KPI - PaLeonis
+# Lance app + Prometheus + Grafana avec une seule commande :
+#   docker compose up -d
+
+services:
+  # Application PaLeonis (instrumentee Prometheus)
+  app:
+    build: ./app
+    container_name: paleonis-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=tp
+      - PORT=3000
+    restart: unless-stopped
+    networks:
+      - paleonis-net
+
+  # Prometheus - collecte les metriques
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: paleonis-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      # Retention courte : on garde 24h, suffisant pour un TP
+      - '--storage.tsdb.retention.time=24h'
+    restart: unless-stopped
+    depends_on:
+      - app
+    networks:
+      - paleonis-net
+
+  # Grafana - visualisation
+  grafana:
+    image: grafana/grafana:11.2.2
+    container_name: paleonis-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=paleonis
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - paleonis-net
+
+volumes:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  paleonis-net:
+    driver: bridge

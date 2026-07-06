@@ -1,0 +1,17 @@
+{
+  "name": "paleonis-api",
+  "version": "1.0.0",
+  "description": "Plateforme de reservation PaLeonis - app instrumentee pour TP QoS/KPI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "prom-client": "^15.1.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
