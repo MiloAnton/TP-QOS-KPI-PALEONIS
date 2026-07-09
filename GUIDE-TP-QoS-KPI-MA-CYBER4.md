@@ -1099,18 +1099,38 @@ groups:
         annotations:
           summary: "Latence p95 superieure a 1s"
 ```
+Modifie `docker-compose.yml` pour charger en volume ce fichier : 
 
-Modifie `prometheus/prometheus.yml` pour charger ce fichier d'alertes en ajoutant tout en haut, après `global:` :
+```yaml
+prometheus:
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml   # <— ajoute ça
+```
+
+Modifie `prometheus/prometheus.yml` pour charger ce fichier d'alertes en ajoutant tout en haut, après `global:`, avec son chemin absolu déclaré dans le `docker-compose.yml` :
 
 ```yaml
 rule_files:
-  - 'alerts.yml'
+  - '/etc/prometheus/alerts.yml'
 ```
 
 Recharge Prometheus :
 
 ```bash
 docker compose restart prometheus
+```
+
+Si ça ne fonctionne pas et que tes alertes ne sont pas prises en compte, un simple reload ne suffira pas, alors : 
+```bash
+docker compose up -d --force-recreate prometheus
+```
+
+Pour confirmer : 
+```bash
+docker compose exec prometheus ls -l /etc/prometheus   # alerts.yml est-il là ?
+docker compose exec prometheus promtool check config /etc/prometheus/prometheus.yml
+docker compose logs prometheus | grep -i rule
 ```
 
 Va dans Prometheus > Alerts. Tu vois maintenant 2 alertes en état "Inactive". Active un incident :
